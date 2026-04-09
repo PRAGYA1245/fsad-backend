@@ -1,32 +1,26 @@
-# Stage 1: Build the WAR
-
+# Stage 1: Build the JAR
 FROM maven:3.9.11-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
 # Copy pom.xml and download dependencies (cached)
-
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Copy project source
-
+# Copy source code
 COPY src ./src
 
-# Build WAR file
-
+# Build JAR
 RUN mvn clean package -DskipTests
 
 
-# Stage 2: Run the WAR
-
+# Stage 2: Run the JAR
 FROM eclipse-temurin:21-jre-ubi9-minimal
 
 WORKDIR /app
 
-# Copy WAR from build stage
-
-COPY --from=build /app/target/*.war app.war
+# Copy JAR from build stage (use exact name)
+COPY --from=build /app/target/erp-backend-0.0.1-SNAPSHOT.jar app.jar
 
 EXPOSE 8080
 
